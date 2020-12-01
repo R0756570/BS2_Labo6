@@ -2,7 +2,7 @@ name: Development
 
 on:
   push:
-    branches: [ master ]
+    branches: [ development ]
   pull_request:
     branches: [ development ]
 
@@ -15,9 +15,13 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: '9.0.4'
+        #delete arch
         architecture: x64
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      uses: actions/cache@v2
+      with: 
+         path: ~/.m2
+         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
   pushDocker:
     runs-on: ubuntu-latest
     steps:
@@ -29,5 +33,5 @@ jobs:
           username: ${{ secrets.dockerhubUsername}}
           password: ${{ secrets.dockerhubPassword}}
           repository: pechov/bs2_labo6
-          tag_name: dev
-          tag_with_ref: true
+          tags: latest
+          tag_with_ref: true 
