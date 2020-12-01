@@ -17,7 +17,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: '9.0.4'
-        #delete arch
         architecture: x64
     - name: Build with Maven
       uses: actions/cache@v2
@@ -41,7 +40,7 @@ jobs:
   Create_Release:
       runs-on: ubuntu-latest
       steps:
-        - name: Checkout code
+        - name: Bump version and push tag
           uses: actions/checkout@v2
         - name: Create Release
           id: create_release
