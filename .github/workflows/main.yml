@@ -3,6 +3,8 @@ name: Main
 on:
   push:
     branches: [ master ]
+    tags: 
+      - 'V*'
   pull_request:
     branches: [ master ]
 
@@ -15,9 +17,13 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: '9.0.4'
+        #delete arch
         architecture: x64
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      uses: actions/cache@v2
+      with: 
+         path: ~/.m2
+         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
   pushDocker:
     runs-on: ubuntu-latest
     steps:
@@ -29,24 +35,25 @@ jobs:
           username: ${{ secrets.dockerhubUsername}}
           password: ${{ secrets.dockerhubPassword}}
           repository: pechov/bs2_labo6
-          tag_name: latest
+          tags: latest
           tag_with_ref: true 
 
-
-  Create_Release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Bump version and push tag
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v5
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create a GitHub release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.tag_version.outputs.new_tag }}
-          release_name: Release ${{ steps.tag_version.outputs.new_tag }}
-          body: ${{ steps.tag_version.outputs.changelog }}
+  Create Release:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+        - name: Create Release
+          id: create_release
+          uses: actions/create-release@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            tag_name: ${{ GITHUB.RUN_NUMBER }}
+            release_name: Release ${{ github.ref }}
+            body: |
+              Changes in this Release
+              - First Change
+              - Second Change
+            draft: false
+            prerelease: false
