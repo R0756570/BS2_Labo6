@@ -38,7 +38,7 @@ jobs:
           tags: latest
           tag_with_ref: true 
 
-  Create Release:
+  Create_Release:
       runs-on: ubuntu-latest
       steps:
         - name: Checkout code
